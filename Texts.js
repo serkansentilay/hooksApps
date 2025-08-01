@@ -978,3 +978,110 @@ want to run an effect conditionally, we can put that condition inside our Hook:
 
 */
 
+
+/*
+Tip: Pass Information Between Hooks
+Since Hooks are functions, we can pass information between them.
+ Bilginin Hook’lar Arasında Aktarılması
+Hook’lar birer fonksiyon oldukları için, bilgiyi birbirlerine aktarabiliriz.
+Bunu daha iyi açıklamak için, mesajlaşma uygulaması örneğimizdeki diğer bir
+ bileşeni kullanacağız. Bu bileşen, bir mesaj için alıcı seçmeye yarar. Bu 
+ sayede seçili olarak işaretlenmiş bir arkadaşın çevrimiçi olup olmadığının görüntülenmesi sağlanır:
+
+
+To illustrate this, we’ll use another component from our hypothetical chat
+ example. This is a chat message recipient picker that displays whether the 
+ currently selected friend is online:
+const friendList = [
+  { id: 1, name: 'Phoebe' },
+  { id: 2, name: 'Rachel' },
+  { id: 3, name: 'Ross' },
+];
+
+function ChatRecipientPicker() {
+  const [recipientID, setRecipientID] = useState(1);
+  const isRecipientOnline = useFriendStatus(recipientID);
+
+  return (
+    <>
+      <Circle color={isRecipientOnline ? 'green' : 'red'} />
+      <select
+        value={recipientID}
+        onChange={e => setRecipientID(Number(e.target.value))}
+      >
+        {friendList.map(friend => (
+          <option key={friend.id} value={friend.id}>
+            {friend.name}
+          </option>
+        ))}
+      </select>
+    </>
+  );
+}
+We keep the currently chosen friend ID in the recipientID state variable, 
+and update it if the user chooses a different friend in the <select> picker.
+Because the useState Hook call gives us the latest value of the recipientID 
+state variable, we can pass it to our custom useFriendStatus Hook as an argument:
+  const [recipientID, setRecipientID] = useState(1);
+  const isRecipientOnline = useFriendStatus(recipientID);
+This lets us know whether the currently selected friend is online. If we pick
+ a different friend and update the recipientID state variable, our useFriendStatus
+  Hook will unsubscribe from the previously selected friend, and subscribe to the 
+  status of the newly selected one.
+
+
+  Mevcut seçili arkadaş ID’sini recipientID ismindeki state değşkeninde saklıyoruz 
+  ve eğer kullanıcı <select> seçicisinden farklı bir arkadaşı seçerse bu değişkeni güncelliyoruz.
+useState Hook’u, recipientID state değişkeninin en güncel değerini bize verdiğinden 
+dolayı, önceden oluşturduğumuz useFriendStatus adındaki özel hook’a bu değeri parametre
+olarak geçirebiliriz:
+Bu kod, mevcut seçili arkadaşın çevrimiçi olup olmadığını bilmemizi sağlar. Eğer farklı
+ bir arkadaşı seçip recipientID state değişkenini güncellersek, useFriendStatus Hook’u 
+ önceden seçili arkadaşın durumunu izlemedeki abonelikten çıkacak ve yeni seçili olan
+  arkadaşın durumu için abone olacaktır.
+*/
+
+
+/*
+For example, maybe you have a complex component that contains a lot of local state that is managed in an ad-hoc way. useState doesn’t make centralizing the update logic any easier so you might prefer to write it as a Redux reducer:
+function todosReducer(state, action) {
+  switch (action.type) {
+    case 'add':
+      return [...state, {
+        text: action.text,
+        completed: false
+      }];
+    // ... other actions ...
+    default:
+      return state;
+  }
+}
+Reducers are very convenient to test in isolation, and scale to express
+ complex update logic. You can further break them apart into smaller reducers if necessary. 
+function useReducer(reducer, initialState) {
+  const [state, setState] = useState(initialState);
+
+  function dispatch(action) {
+    const nextState = reducer(state, action);
+    setState(nextState);
+  }
+
+  return [state, dispatch];
+}
+Now we could use it in our component, and let the reducer drive its state management:
+function Todos() {
+  const [todos, dispatch] = useReducer(todosReducer, []);
+
+  function handleAddClick(text) {
+    dispatch({ type: 'add', text });
+  }
+
+  // ...
+}
+The need to manage local state with a reducer in a complex component is 
+common enough that we’ve built the useReducer Hook right into React. 
+You’ll find it together with other built-in Hooks in the Hooks API reference.
+
+
+*/
+
