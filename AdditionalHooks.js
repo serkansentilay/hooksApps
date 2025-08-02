@@ -719,3 +719,479 @@ Böylece uygulama daha akıcı olur, performans iyileşir.
 
 
 //useTransition
+
+/*
+const [isPending, startTransition] = useTransition();
+Returns a stateful value for the pending state of the transition, and a function to start it.
+startTransition lets you mark updates in the provided callback as transitions:
+startTransition(() => {
+  setCount(count + 1);
+});
+isPending indicates when a transition is active to show a pending state:
+function App() {
+  const [isPending, startTransition] = useTransition();
+  const [count, setCount] = useState(0);
+  
+  function handleClick() {
+    startTransition(() => {
+      setCount(c => c + 1);
+    });
+  }
+
+  return (
+    <div>
+      {isPending && <Spinner />}
+      <button onClick={handleClick}>{count}</button>
+    </div>
+  );
+}
+Note:
+Updates in a transition yield to more urgent updates such as clicks.
+Updates in a transition will not show a fallback for re-suspended content. This 
+allows the user to continue interacting with the current content while rendering the update.
+*/
+
+/*
+Bu, geçişin (transition) beklemede olup olmadığını gösteren bir durum değeri 
+(isPending) ve geçişi başlatmak için bir fonksiyon (startTransition) döner.
+startTransition, sağlanan callback içindeki güncellemeleri bir geçiş olarak işaretlemene izin verir:
+isPending, bir geçişin aktif olup olmadığını belirtir, böylece beklemede olduğunu gösterebilirsin:
+Geçişteki güncellemeler, tıklama gibi daha acil güncellemelere öncelik verir.
+Geçişteki güncellemeler, yeniden askıya alınan (re-suspended) içerik için fallback 
+göstermez. Bu sayede kullanıcı, güncelleme render edilirken mevcut içerikle etkileşimde 
+bulunmaya devam edebilir.
+
+
+1. useTransition Nedir?
+React 18 ile gelen bir hook.
+Kullanıcı deneyimini iyileştirmek için ağır, yavaş veya büyük güncellemeleri
+ “geçiş” (transition) olarak işaretlememize olanak sağlar.
+Böylece React, daha önemli ve acil işlemlere öncelik verir.
+Kullanıcı arayüzü donmaz, takılmaz ve akıcı kalır.
+2. startTransition Fonksiyonu
+İçine verdiğin fonksiyonun içindeki state güncellemeleri, React tarafından daha 
+düşük öncelikli işler olarak işaretlenir.
+Bu güncellemeler, öncelikli işlemler (örneğin kullanıcı tıklamaları) bittikten sonra işlenir.
+3. isPending Durumu
+Bu boolean değer, geçiş sürecinde olup olmadığını gösterir.
+Örneğin, ağır bir işlem sürerken yükleniyor spinner’ı veya başka bir yüklenme 
+göstergesini açmak için kullanılır.
+4. Ne Kazanıyoruz?
+Kullanıcıya anlık tepki verme süresini iyileştiriyoruz.
+Ağır işlemler arka planda çalışırken kullanıcı, arayüzle etkileşime devam edebiliyor.
+Render işlemi devam ederken arayüz “donmaz” veya takılmaz.
+Yani, UI daha akıcı ve kullanışlı olur.
+
+
+*/
+
+/*
+1. useTransition nedir?
+Amacı: Bir veya birden fazla state güncellemesini “düşük öncelikli” (non-urgent) olarak işaretlemek.
+Ne yapıyor: startTransition içine yazdığın state güncellemelerini React arka 
+planda yapıyor, önceliği daha düşük tutuyor.
+Kullanımı: Genelde ağır işlemler, filtreleme, büyük liste güncellemeleri gibi 
+durumlarda UI’nin donmaması için kullanılır.
+Ek olarak: isPending state’iyle bu işlemin devam ettiğini gösterebilirsin.
+2. useDeferredValue nedir?
+Amacı: Elindeki bir “değerin” güncellenmesini ertelemek.
+Ne yapıyor: React, senin verdiğin “value”yu hemen değil, daha düşük öncelikle güncelliyor.
+Kullanımı: Özellikle input gibi hızlı değişen değerleri, başka componentlere 
+iletirken, onları daha “yavaş” güncellemek istediğinde kullanılır.
+Örnek: Kullanıcı yazarken input state hızlı güncellenir, ama o değerin filtreleme 
+gibi ağır işlemlere geçişini useDeferredValue ile yavaşlatabilirsin.
+3. Fark nedir?
+useTransition: Düşük öncelikli bir işlemi başlatırsın. (örn: birkaç state güncellemesi,
+ liste güncellemesi)
+useDeferredValue: Zaten bir state var, onun güncellenmesini ertelemek istiyorsun. 
+(örn: input value, scroll pozisyonu)
+4. Örnekle açıklayalım
+useTransition örneği:
+const [isPending, startTransition] = useTransition();
+const [count, setCount] = useState(0);
+
+function handleClick() {
+  startTransition(() => {
+    setCount(count + 1);  // bu güncelleme düşük öncelikli yapılacak
+  });
+}
+Burada işlemi sen başlatıyorsun, React düşük öncelik veriyor.
+useDeferredValue örneği:
+const [query, setQuery] = useState('');
+const deferredQuery = useDeferredValue(query);
+
+// deferredQuery, query’den biraz gecikmeli güncellenir
+const filtered = useMemo(() =>
+  bigList.filter(item => item.includes(deferredQuery)),
+  [deferredQuery]
+);
+Burada query hemen değişir, ama deferredQuery biraz gecikmeli değişir. Bu
+ gecikme React tarafından yönetilir.
+5. Sonuç olarak:
+useTransition: Bir işlemi düşük öncelikli başlatmak istiyorsan.
+useDeferredValue: Elindeki bir değeri yavaşlatmak, ertelemek istiyorsan.
+Özet tablosu:
+Hook	Ne Yapar?	Ne Zaman Kullanılır?
+useTransition	Düşük öncelikli güncelleme başlatır	Ağır işlemler için güncellemeyi ertelemek
+useDeferredValue	Bir değerin güncellenmesini erteler	Hızlı değişen state’in yavaş güncellenmesi
+
+*/
+
+//useId
+
+/*
+const id = useId();
+useId is a hook for generating unique IDs that are stable across the server and client, 
+while avoiding hydration mismatches.
+Note
+useId is not for generating keys in a list. Keys should be generated from your data.
+For a basic example, pass the id directly to the elements that need it:
+function Checkbox() {
+  const id = useId();
+  return (
+    <>
+      <label htmlFor={id}>Do you like React?</label>
+      <input id={id} type="checkbox" name="react"/>
+    </>
+  );
+};
+For multiple IDs in the same component, append a suffix using the same id:
+function NameFields() {
+  const id = useId();
+  return (
+    <div>
+      <label htmlFor={id + '-firstName'}>First Name</label>
+      <div>
+        <input id={id + '-firstName'} type="text" />
+      </div>
+      <label htmlFor={id + '-lastName'}>Last Name</label>
+      <div>
+        <input id={id + '-lastName'} type="text" />
+      </div>
+    </div>
+  );
+}
+Note:
+useId generates a string that includes the : token. This helps ensure that the token is 
+unique, but is not supported in CSS selectors or APIs like querySelectorAll.
+useId supports an identifierPrefix to prevent collisions in multi-root apps. To configure,
+see the options for hydrateRoot and ReactDOMServer.
+
+useId React'te benzersiz ve stabil (değişmeyen) ID'ler oluşturmak için kullanılan bir 
+hook'tur. Bu ID’ler, hem sunucu (server-side rendering) hem de istemci (client-side) 
+tarafında aynı kalır. Böylece hydration (sunucudan gelen HTML'in React tarafından 
+alınıp etkileşime açılması) sırasında uyumsuzluk yaşanmaz.
+Önemli Notlar:
+useId, liste öğeleri için key oluşturmakta kullanılmaz. Liste keyleri, genellikle 
+verilerden veya index'ten türetilir.
+Oluşturulan ID'ler içinde : gibi özel karakterler olabilir. Bu yüzden CSS seçicilerinde 
+(querySelectorAll gibi) doğrudan kullanılamaz.
+Çoklu kök (multi-root) uygulamalarda çakışmaları önlemek için identifierPrefix desteği
+ vardır (bu ileri seviye ayar ReactDOMServer veya hydrateRoot ile yapılır).
+
+
+ SSR ile uyumlu ID’ler: Sunucudan render edilen sayfa ile istemcideki React uyum 
+ içinde olur, bu sayede React “hydration mismatch” hataları yaşamaz.
+Otomatik benzersizlik: Karmaşık bileşenlerde ID’lerin çakışmasını önler.
+Kolay ve güvenli: Elle ID üretmekten veya karmaşık çözümler kullanmaktan daha güvenli ve pratiktir.
+Özet
+useId:
+React’in benzersiz, stabil ve SSR ile uyumlu ID’ler üretmesini sağlar.
+Özellikle form elemanları gibi label-input ilişkisinde kullanılır.
+Liste keyleri için kullanılmaz.
+Oluşan ID’ler CSS seçicilerinde doğrudan kullanılamaz.
+Çoklu ID gerekiyorsa, temel ID’ye son ekler eklenerek benzersizleştirilir.
+
+useId hook'u döndürdüğü ID değeri bir string oluyor. Bu string, React tarafından
+ benzersiz olması için oluşturulmuş ve genellikle içinde : gibi karakterler de 
+ bulunan bir unique identifier (benzersiz tanımlayıcı).
+
+Örnek çıktı:
+const id = useId();
+console.log(id); // Örnek çıktı: ":r1:" veya ":r2:"
+Bu ID genellikle şöyle görünür: ":r1:", ":r2:", ":b3:" gibi.
+ID’nin başında ve sonunda : karakterleri olabilir.
+Bu format, React’in kendi benzersiz ID yönetim sisteminin bir parçası ve özellikle 
+server-side rendering (SSR) ile client-side React arasında eşleşmeyi sağlamak için tasarlanmıştır.
+
+*/
+
+//useSyncExternalStore
+
+/*
+const state = useSyncExternalStore(subscribe, getSnapshot[, getServerSnapshot]);
+useSyncExternalStore is a hook recommended for reading and subscribing from external
+ data sources in a way that’s compatible with concurrent rendering features like 
+ selective hydration and time slicing.
+This method returns the value of the store and accepts three arguments:
+subscribe: function to register a callback that is called whenever the store changes.
+getSnapshot: function that returns the current value of the store.
+getServerSnapshot: function that returns the snapshot used during server rendering.
+The most basic example simply subscribes to the entire store:
+const state = useSyncExternalStore(store.subscribe, store.getSnapshot);
+However, you can also subscribe to a specific field:
+const selectedField = useSyncExternalStore(
+  store.subscribe,
+  () => store.getSnapshot().selectedField,
+);
+When server rendering, you must serialize the store value used on the server, and provide 
+it to useSyncExternalStore. React will use this snapshot during hydration to prevent server mismatches:
+const selectedField = useSyncExternalStore(
+  store.subscribe,
+  () => store.getSnapshot().selectedField,
+  () => INITIAL_SERVER_SNAPSHOT.selectedField,
+);
+Note:
+getSnapshot must return a cached value. If getSnapshot is called multiple times 
+in a row, it must return the same exact value unless there was a store update in between.
+A shim is provided for supporting multiple React versions published as
+ use-sync-external-store/shim. This shim will prefer useSyncExternalStore when available,
+ and fallback to a user-space implementation when it’s not.
+As a convenience, we also provide a version of the API with automatic support for
+ memoizing the result of getSnapshot published as use-sync-external-store/with-selector.
+
+*/
+
+/*
+useSyncExternalStore nedir, ne için kullanılır?
+React uygulamalarında, dış kaynaklardan (örneğin global state yönetim kütüphaneleri
+ Redux, Zustand veya RxJS gibi) veri okumak ve bu verideki değişikliklere abone olmak gerekir.
+Önceden, bunu yapmak için çeşitli yöntemler vardı ama React’in concurrent rendering
+ ve yeni özellikleriyle uyumlu değillerdi. Bu uyumsuzluklar, UI tutarsızlıklarına 
+ ve hatalara neden olabiliyordu (örneğin, server-side rendering ile client-side 
+ render arasında farklılıklar).
+
+useSyncExternalStore hook’u, bu sorunları çözmek için React 18 ile gelen standart bir API:
+
+Store’daki değişikliklere senkron olarak abone olmanızı sağlar.
+React’in concurrency özellikleriyle uyumlu çalışır.
+Sunucu tarafı render ile istemci tarafı render uyumunu sağlar (hydrate esnasında mismatch olmaz).
+React’in zamanlama ve güncelleme mekanizmaları ile uyumlu, güvenilir ve performanslıdır.
+Kullanım senaryoları
+Redux, MobX gibi dış state yönetim kütüphanelerini React ile birlikte kullanırken.
+Global veya shared state için RxJS gibi observable sistemlerde.
+Kendi özel dış veri kaynaklarınız varsa ve React ile senkron güncelleme istiyorsanız.
+Özetle:
+useSyncExternalStore, React’in dış veri kaynaklarından güncel durumu “doğru ve uyumlu” 
+şekilde okumasını ve güncellemeleri dinlemesini sağlayan modern ve güvenilir bir React hook’udur.
+
+
+*/
+
+/*
+Diyelim ki React state kullanmıyoruz, bunun yerine dışarıda global bir veri kaynağımız (store) var.
+Mesela:
+
+Websocket’ten gelen canlı veriler,
+Custom event emitter ile gelen veriler,
+Redux, Zustand gibi global state kütüphanelerinin kendi state yönetimleri...
+Bu dış kaynak değiştiğinde React bileşenlerine “güncelle” demek lazım.
+useSyncExternalStore bu işi sağlıklı yapıyor. React 18’in iç mekanizmasına 
+uygun olarak, bileşenlerin sadece gerektiğinde yeniden render olmasını sağlıyor.
+
+Özet
+useSyncExternalStore, React dışındaki veri kaynaklarına güvenli ve performanslı erişim sağlar.
+React’ın concurrent rendering yapısına uygun çalışır.
+Abonelik mekanizması sayesinde sadece değişiklik olduğunda render edilir.
+Server-side rendering ile uyumludur.
+Kullanmazsak ne olur?
+React bileşeni dış veriyi manuel olarak takip etmek zorunda kalır.
+Performans problemleri çıkarabilir (gereksiz renderlar).
+React 18 concurrency özelliklerinden faydalanamaz.
+Daha kolay düşünmek için:
+React dışındaki bir “global sayaç” var.
+Bu sayaç değiştiğinde, ona bağlı React bileşenlerinin güncellenmesi lazım.
+useSyncExternalStore bunu kolaylaştırır, yönetir.
+
+| Konu                     | useSyncExternalStore var         | useSyncExternalStore yok                 |
+| ------------------------ | -------------------------------- | ---------------------------------------- |
+| React dışı veri ile uyum | Kolayca ve doğru şekilde yapılır | Karmaşık, hataya açık manuel kod gerekir |
+| Performans               | Sadece gerektiğinde render       | Gereksiz render olabilir                 |
+| Server-side rendering    | Uyumlu                           | Zorluk yaşanabilir                       |
+| React 18 özellikleri     | Desteklenir                      | Desteklenmez                             |
+
+*/
+
+//useInsertionEffect
+
+/*
+useInsertionEffect(didUpdate);
+The signature is identical to useEffect, but it fires synchronously before all DOM
+ mutations. Use this to inject styles into the DOM before reading layout in useLayoutEffect.
+  Since this hook is limited in scope, this hook does not have access to refs and cannot
+   schedule updates.
+Note:
+useInsertionEffect should be limited to css-in-js library authors. Prefer useEffect or
+ useLayoutEffect instead.
+*/
+
+/*
+Tabii Serkan, **`useInsertionEffect`** hakkında detaylı ve anlaşılır bir açıklama yapayım.
+
+---
+
+## useInsertionEffect Nedir?
+
+* `useInsertionEffect`, React 18 ile gelen **çok özel ve sınırlı amaçlı** bir hook.
+* `useEffect` ile aynı imzaya sahip ama **tetiklenme zamanı farklıdır**.
+* **DOM değişikliklerinden önce (synchronous olarak)** çalışır.
+* Amaç: **CSS-in-JS kütüphaneleri** gibi stil ekleyen kodların, stil etiketlerini DOM’a en hızlı şekilde, render başlamadan önce eklemesini sağlamak.
+
+---
+
+## Neden var?
+
+Normalde:
+
+* `useEffect` **render sonrası** çalışır (asenkron).
+* `useLayoutEffect` ise DOM değişikliklerinden hemen sonra (synchronous) çalışır.
+
+Ama CSS stillerini mümkün olan en erken aşamada, yani **DOM’a stil uygulanmadan önce** eklemek gerekebilir ki:
+
+* Stil çakışmaları önlensin,
+* Yanlış görsel sıçramalar (flash of unstyled content) yaşanmasın.
+
+İşte `useInsertionEffect` bu amaçla geldi.
+
+---
+
+## Özellikleri
+
+| Özellik             | Detay                                                                       |
+| ------------------- | --------------------------------------------------------------------------- |
+| Çalışma zamanı      | DOM değişikliklerinden **önce, synchronous** olarak çalışır.                |
+| Güncellemeler       | Güncelleme tetikleyemez, yani `setState` gibi şeyler kullanılamaz.          |
+| Refs erişimi        | Refs’e erişemez, çünkü render öncesi çalışır.                               |
+| Kullanım alanı      | CSS-in-JS kütüphaneleri gibi stil ekleyen düşük seviyeli kütüphaneler için. |
+| Geliştirici önerisi | Çoğu uygulama için `useEffect` veya `useLayoutEffect` tercih edilmeli.      |
+
+---
+
+## Kısaca
+
+`useInsertionEffect` çok **erken, DOM’a herhangi bir değişiklik olmadan önce** çalışan bir hook. Ama çok sınırlı yeteneklere sahip. Genellikle:
+
+* Stillerin DOM’a hemen, hatasız ve hızlı eklenmesi gereken durumlarda,
+* CSS-in-JS gibi kütüphanelerin yazılımında kullanılır.
+
+---
+
+## Örnek kullanım (basitleştirilmiş)
+
+```js
+useInsertionEffect(() => {
+  // Örneğin, DOM'a bir <style> etiketi ekleniyor
+  const styleTag = document.createElement('style');
+  styleTag.textContent = `.my-class { color: red; }`;
+  document.head.appendChild(styleTag);
+
+  return () => {
+    document.head.removeChild(styleTag);
+  };
+}, []);
+```
+
+---
+
+## Özet
+
+* `useInsertionEffect` React’in **çok özel bir hook’u**,
+* **Sadece stil ekleme işlemleri gibi DOM’dan önce yapılması gereken işler için** uygun,
+* Çoğu zaman ihtiyacınız olmaz, `useEffect` veya `useLayoutEffect` yeterli,
+* Kütüphane yazarları için özel bir araçtır.
+
+---
+
+İstersen daha fazla örnek veya karşılaştırma yapabiliriz!
+
+| Özellik             | Detay                                                                       |
+| ------------------- | --------------------------------------------------------------------------- |
+| Çalışma zamanı      | DOM değişikliklerinden **önce, synchronous** olarak çalışır.                |
+| Güncellemeler       | Güncelleme tetikleyemez, yani `setState` gibi şeyler kullanılamaz.          |
+| Refs erişimi        | Refs’e erişemez, çünkü render öncesi çalışır.                               |
+| Kullanım alanı      | CSS-in-JS kütüphaneleri gibi stil ekleyen düşük seviyeli kütüphaneler için. |
+| Geliştirici önerisi | Çoğu uygulama için `useEffect` veya `useLayoutEffect` tercih edilmeli.      |
+
+*/
+
+
+/*
+Kısaca
+useInsertionEffect çok erken, DOM’a herhangi bir değişiklik olmadan önce çalışan bir hook. Ama çok sınırlı yeteneklere sahip. Genellikle:
+Stillerin DOM’a hemen, hatasız ve hızlı eklenmesi gereken durumlarda,
+CSS-in-JS gibi kütüphanelerin yazılımında kullanılır.
+Örnek kullanım (basitleştirilmiş)
+useInsertionEffect(() => {
+  // Örneğin, DOM'a bir <style> etiketi ekleniyor
+  const styleTag = document.createElement('style');
+  styleTag.textContent = `.my-class { color: red; }`;
+  document.head.appendChild(styleTag);
+
+  return () => {
+    document.head.removeChild(styleTag);
+  };
+}, []);
+Özet
+useInsertionEffect React’in çok özel bir hook’u,
+Sadece stil ekleme işlemleri gibi DOM’dan önce yapılması gereken işler için uygun,
+Çoğu zaman ihtiyacınız olmaz, useEffect veya useLayoutEffect yeterli,
+Kütüphane yazarları için özel bir araçtır.
+
+*/
+
+/*
+import React, { useInsertionEffect, useState } from 'react';
+
+function ColoredBox({ color }) {
+  useInsertionEffect(() => {
+    // Stil etiketi oluştur
+    const styleTag = document.createElement('style');
+    styleTag.textContent = `
+      .dynamic-box {
+        width: 150px;
+        height: 150px;
+        background-color: ${color};
+        border: 2px solid black;
+      }
+    `;
+    document.head.appendChild(styleTag);
+
+    // Cleanup: component unmount olduğunda stili kaldır
+    return () => {
+      document.head.removeChild(styleTag);
+    };
+  }, [color]); // color değişirse stil yenilenir
+
+  return <div className="dynamic-box" />;
+}
+
+export default function App() {
+  const [color, setColor] = useState('skyblue');
+
+  return (
+    <>
+      <ColoredBox color={color} />
+      <button onClick={() => setColor('tomato')}>Kırmızı yap</button>
+      <button onClick={() => setColor('lightgreen')}>Yeşil yap</button>
+    </>
+  );
+}
+
+
+useInsertionEffect component render olmadan önce çalışır,
+Stil dosyasını DOM <head> içine hemen ekler,
+Böylece görsel, render başlamadan önce renk ve diğer CSS özellikleriyle hazırlanmış olur,
+color değiştiğinde, stil yeniden eklenir (eski silinir),
+useInsertionEffect burada useEffect veya useLayoutEffect yerine kullanılıyor çünkü
+ stil değişikliklerinin render öncesinde olması gerekiyor.
+Neden useInsertionEffect?
+Eğer stili useEffect içinde eklersen, render sonrası yapılacağı için kullanıcı kısa 
+süreli görünüm bozukluğu (flash of unstyled content) görebilir.
+useLayoutEffect da erken çalışır ama DOM değişikliği sonrası tetiklenir, o yüzden 
+biraz daha geç kalır.
+useInsertionEffect DOM değişikliklerinden önce senkron olarak çalışır, bu nedenle 
+stil ekleme için en doğru yer.
+
+*/
+
+
