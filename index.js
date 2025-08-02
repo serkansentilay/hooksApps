@@ -3,7 +3,7 @@
  */
 
 import { AppRegistry } from 'react-native';
-import App from './renderprops/App';
+import App from './useCallback2';
 import { name as appName } from './app.json';
 
 AppRegistry.registerComponent(appName, () => App);
